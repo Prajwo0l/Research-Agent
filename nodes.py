@@ -370,3 +370,36 @@ def final_assembler(state: ResearchState)-> dict:
     step(log,f"Final Report Assembled : {total_words:,} words")
 
     return {'final_report':final_report}
+
+
+#Node 7 -saving output
+
+def save_outputs(state:ResearchState)-> dict:
+    """
+    Persist the final report as a Markdown file in the outputs/directory.
+
+    Returns
+    -------
+    dict with key 'output_path'(str)
+    """
+    topic= state['topic']
+    report=state['final_report']
+
+    #Safe filename
+    safe_topic = re.sub(r"[^\w\s-]", "", topic.lower())
+    safe_topic = re.sub(r"\s+", "_", safe_topic)[:60]
+    today_str  = date.today().strftime("%Y%m%d")
+    filename   = f"{today_str}_{safe_topic}_phd_research_report.md"
+
+    #save next to this package in an outpiut
+    output_dir = Path(__file__).parent/"outputs"
+    output_dir.mkdir(parents=True,exist_ok=True)
+    output_path=output_dir /filename
+
+    output_path.write_text(report,encoding='utf-8')
+    size_kb = output_path.stat().st_size/1024
+    success(log,f"Report saved -> {output_path.resolve()}")
+    step(log,f"File size : {size_kb:.1f} KB")
+
+    return {'output_path':str(output_path.resolve())}
+
