@@ -39,6 +39,18 @@ _DOMAIN_PREFIXES: dict[str, str] = {
     "conference_proceedings": "conference proceedings OR symposium OR workshop paper {q}",
 }
 
+_OUTPUT_LABELS={
+    'literature_summary': 'OUTPUT 1: Literature Summary',
+    'knowledge_map': 'OUTPUT 2 : Knowledge Map',
+    'annotated_bibliography':'OUTPUT 3 : Annotated Bibliography',
+}
+
+_SYNTHESIS_SYSTEM_PROMPTS={
+    'literature_summary': LITERATURE_SUMMARY_SYSTEM,
+    'knowledge_map': KNOWLEDGE_MAP_SYSTEM,
+    'annotated_bibliography': ANNOTATED_BIBLIOGRAPHY_SYSTEM,
+}
+
 
 #node1-Topic Decomposer
 
