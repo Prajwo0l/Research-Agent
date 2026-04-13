@@ -88,7 +88,7 @@ def topic_decomposer(state:ResearchState,llm_fast)->dict:
 
         ])
     )
-    return {'decompostion':decomposition}
+    return {'decomposition':decomposition}
 
 # Node 2 - Search Worker (runs in parallel via send)
 
@@ -155,9 +155,10 @@ def evidence_aggregator(state:ResearchState)-> dict:
     seen:set[str]=set()
     unique:List[EvidenceItem]=[]
     for item in items:
-        if items.url and item.url not in seen:
+        if item.url and item.url not in seen:
             seen.add(item.url)
             unique.append(item)
+
     phase_banner(log,2,"Evidence Aggregation Complte")
     step(log,f"Total raw results: {len(items)}")
     step(log,f"Unique sources : {len(unique)}")
@@ -216,7 +217,7 @@ def critical_evaluator(state :ResearchState,llm_strong)->dict:
     step(log,f"Replication concerns : {len(evaluation.replication_concerns)}")
 
     log.debug("Evaluation: \n%s",evaluation.model_dump_json(indent=2))
-    return {'evulation':evaluation}
+    return {'evaluation':evaluation}
 
 
 # Node 5 - Synthesis Worker (runs parllael send*3)
@@ -323,7 +324,7 @@ def final_assembler(state: ResearchState)-> dict:
             bibliography=output
     if not lit_summary:
         warn(log,"Literature Summary output not identified - using raw first output")
-        lit_summary=output[0] if outputs else "(missing)"
+        lit_summary=outputs[0] if outputs else "(missing)"
     if not knowledge_map:
         warn(log,"Knowledge Map output not identified - using raw second output")
         knowledge_map = outputs[1] if len(outputs) > 1 else "(missing)"
