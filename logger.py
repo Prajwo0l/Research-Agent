@@ -84,8 +84,8 @@ def get_logger(name:str='research_agent',log_dir:str| Path='logs')->logging.Logg
     log_path=Path(log_dir)
     log_path.mkdir(parents=True,exist_ok=True)
     fh= RotatingFileHandler(
-        log_path/'research_agent.log'
-        maxBytes=5 *1024*1024
+        log_path/'research_agent.log',
+        maxBytes=5 *1024*1024,
         backupCount=3,
         encoding='utf-8'
     )
@@ -95,4 +95,34 @@ def get_logger(name:str='research_agent',log_dir:str| Path='logs')->logging.Logg
 
     _INITIALISED.add(name)
     return logger
+
+
+
+def phase_banner(logger:logging.Logger,phase_num:int,title:str)->None:
+    """Print a bold phase header to the console"""
+    bar = "="*60
+    logger.info(f"\n{BOLD}{CYAN}{bar}{RESET}")
+    logger.info(f'{BOLD}{CYAN} PHASE {phase_num} -- {title.upper()}{RESET}')
+    logger.info(f'{BOLD}{CYAN}{bar}{RESET}')
+
+def step(logger : logging.Logger, msg:str)-> None:
+    """Print a step line"""
+    logger.info(f"{GREEN} {RESET} {msg}")
+
+def substep(logger:logging.Logger,msg:str)-> None:
+    """Print an indented sub_step line."""
+    logger.info(f'{DIM} ->{RESET}{msg}')
+
+def warn(logger:logging.Logger,msg:str)-> None:
+    """Print an yellow warning."""
+    logger.warning(f"{YELLOW} {RESET}{msg}")
+
+def success(logger:logging.Logger,msg:str)-> None:
+    """Print a bold green success line."""
+    logger.info(f'{BOLD}{GREEN} {msg}{RESET}')
+
+def section_title(logger:logging.Logger,title:str)-> None:
+    """Print a dimmed section divider."""
+    logger.info(f'{DIM}{"-"*50}{RESET}')
+    logger.info(f"{BOLD}{WHITE} {title}{RESET}")
 
