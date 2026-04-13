@@ -8,6 +8,8 @@ from typing import List
 from langchain_core.messages import HumanMessage,SystemMessage
 from langchain_community.tools.tavily_search import TavilySearchResults
 
+from .logger import get_logger,phase_banner,step,substep,warn,success,section_title
+
 from .prompts import (
     TOPIC_DECOMPOSER_SYSTEM,
     TOPIC_DECOMPOSER_USER,
@@ -26,6 +28,8 @@ from .schemas import (
     SynthesisWorkerState,
     TopicDecomposition
 )
+
+log=get_logger(__name__)
 #Domain aware query augmentation
 _DOMAIN_PREFIXES: dict[str, str] = {
     "academic_papers": (
@@ -65,6 +69,12 @@ def topic_decomposer(state:ResearchState,llm_fast)->dict:
     scope=state.get('scope') or 'Exhaustive global coverage, all the periods'
     focus=state.get('focus') or 'No specific angle -cover all major prespectives'
 
+    phase_banner(log,1,'Topic Decomposition')
+    log.info(f"Topic : {topic}")
+    log.info(f'Scope : {scope}')
+    log.info(f'Focus : {focus}')
+
+
     decomposition : TopicDecomposition =(
         llm_fast
         .with_structured_output(TopicDecomposition)
@@ -95,6 +105,8 @@ def search_worker(state:SearchWorkerState)-> dict:
     domain = state['domain']
 
     display_q=query[:65]+ '...' if len(query)> 65 else query
+    log.info(f' search [{domain:<24}] {display_q}')
+
     template=_DOMAIN_PREFIXES.get(domain,"{q}")
     augmented=template.replace('{q}',query)
 
@@ -122,6 +134,7 @@ def search_worker(state:SearchWorkerState)-> dict:
                 domain=domain,
                 query_used=query,
             ))
+    substep(log,f"Found{len(items)} results")
     return {'evidence_items':items}
 
 # Node 3 -Evidence Aggregator
@@ -145,11 +158,17 @@ def evidence_aggregator(state:ResearchState)-> dict:
         if items.url and item.url not in seen:
             seen.add(item.url)
             unique.append(item)
+    phase_banner(log,2,"Evidence Aggregation Complte")
+    step(log,f"Total raw results: {len(items)}")
+    step(log,f"Unique sources : {len(unique)}")
 
-        domain_counts: dict[str,int]={}    
-        for item in unique:
-            domain_counts[item.domain]=domain_counts.get(item.domain,0)+1
-        return {'evidence_items':unique}
+    domain_counts: dict[str,int]={}    
+    for item in unique:
+        domain_counts[item.domain]=domain_counts.get(item.domain,0)+1
+    for domain,count in sorted(domain_counts.items()):
+        substep(log,f'{domain:<30} {count} sources')
+    # return deduplicated list back into state
+    return {'evidence_items':unique}
     
 # Node 4 -critical Evaluator
 def critical_evaluator(state :ResearchState,llm_strong)->dict:
@@ -165,6 +184,10 @@ def critical_evaluator(state :ResearchState,llm_strong)->dict:
     items=state.get('evidence_items',[])
     decompostion=state['decomposition']
 
+    phase_banner(log,3,'Critical Evaluation')
+    log.info(f"Evaluating {len(items)} sources ...")
+
+    # build a concise evidence diegst
     capped = items[:60]
     evidence_digest="\n\n".join([
         f"[{i+1}] DOMAIN: {item.domain}\n"
@@ -187,9 +210,83 @@ def critical_evaluator(state :ResearchState,llm_strong)->dict:
             )),
         ])
     )
+    step(log,f"Consenseus areas : {len(evaluation.consensus_areas)}")
+    step(log,f"Contested claims : {len(evaluation.contested_claims)} ")
+    step(log,f"Key debates : {len(evaluation.key_debates)}")
+    step(log,f"Replication concerns : {len(evaluation.replication_concerns)}")
+
+    log.debug("Evaluation: \n%s",evaluation.model_dump_json(indent=2))
     return {'evulation':evaluation}
 
 
+# Node 5 - Synthesis Worker (runs parllael send*3)
+
+def synthesis_worker(state:SynthesisWorkerState,llm_strong)-> dict:
+    """
+    Phase 4 - Write one of the three Phd research outputs.
+
+    Three instances run in parallel :
+     1. literature_summary
+     2. knowledge_map
+     3. annotated_bibliography
+
+    Returns
+    -------
+    dict with key 'synthesis_outputs' (List[str]) - single-element list
+    """
+    output_type = state['output_type']
+    topic = state['topic']
+    label = _OUTPUT_LABELS[output_type]
+
+    section_title(log, f"Writing{label}.....")
+
+    # desearialize context 
+    evidence_list = json.loads(state['evidence_json'])
+    evaluation = json.loads(state['evaluation_json'])
+    decomp=json.loads(state['decomposition_json'])
+
+    #build evidence digest 
+    evidence_digest = "\n\n".join([
+        f"[{i+1}] {e.get('domain','?').upper()} | {e.get('title','Untitled')}\n"
+        f"URL: {e.get('url','')}\n"
+        f"{(e.get('snippet') or '')[:300]}"
+        for i, e in enumerate(evidence_list[:80])
+    ])
 
 
+    #build user message 
+    def _bullet_list(items: list) -> str:
+        return "\n".join(f"  • {x}" for x in items) if items else "  (none identified)"
+
+    user_msg = SYNTHESIS_USER_TEMPLATE.format(
+        topic               = topic,
+        scope_statement     = decomp.get("scope_statement", ""),
+        subtopics           = ", ".join(decomp.get("core_subtopics", [])),
+        disciplines         = ", ".join(decomp.get("disciplines", [])),
+        time_periods        = ", ".join(decomp.get("time_periods", [])),
+        consensus_areas     = _bullet_list(evaluation.get("consensus_areas", [])),
+        contested_claims    = _bullet_list(evaluation.get("contested_claims", [])),
+        key_debates         = _bullet_list(evaluation.get("key_debates", [])),
+        replication_concerns= _bullet_list(evaluation.get("replication_concerns", [])),
+        methodological_landscape = evaluation.get("methodological_landscape", ""),
+        quality_notes       = evaluation.get("quality_notes", ""),
+        n_sources           = len(evidence_list),
+        evidence_digest     = evidence_digest,
+        output_label        = label,
+    )
+
+    system_prompt = _SYNTHESIS_SYSTEM_PROMPTS[output_type]
+
+    result = llm_strong.invoke([
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=user_msg),
+    ])
+
+    output_text = result.content
+    word_count  = len(output_text.split())
+
+    step(log, f"{label} → {word_count:,} words written")
+    log.debug("First 500 chars of %s:\n%s", output_type, output_text[:500])
+
+    return {"synthesis_outputs": [output_text]}
 
