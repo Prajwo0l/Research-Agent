@@ -290,3 +290,83 @@ def synthesis_worker(state:SynthesisWorkerState,llm_strong)-> dict:
 
     return {"synthesis_outputs": [output_text]}
 
+
+#node 6 -final assembler
+
+def final_assembler(state: ResearchState)-> dict:
+    """
+    Merge all three synthesis outputs into a single cohesive Markdwon report.
+
+    Returns
+    -------
+    dict with key 'final_report' (str)
+    """
+    topic = state['topic']
+    outputs = state.get('synthesis_outputs',[])
+    today= date.today().strftime('%B %d, %Y')
+    n_sources=len(state.get('evidence_items',[]))
+
+    phase_banner(log,3,'Final Assembly')
+    log.info(f"Merging { len(outputs)} synthesis outputs ....")
+
+    #identify which output is which 
+    lit_summary =""
+    knowledge_map = "" 
+    bibliography = "" 
+
+    for output in outputs:
+        if "OUTPUT 1" in output or "Literature Summary" in output:
+            lit_summary = output
+        elif "OUTPUT 2" in output or "Knowledge Map" in output:
+            knowledge_map = output
+        elif "OUTPUT 3" in output or "Annotated Bibliography" in output:
+            bibliography=output
+    if not lit_summary:
+        warn(log,"Literature Summary output not identified - using raw first output")
+        lit_summary=output[0] if outputs else "(missing)"
+    if not knowledge_map:
+        warn(log,"Knowledge Map output not identified - using raw second output")
+        knowledge_map = outputs[1] if len(outputs) > 1 else "(missing)"
+    if not bibliography:
+        warn(log,"Annotated Bibliography output not identified- using raw third output")
+        bibliography = outputs[2] if len(outputs) > 2 else'(missing)'
+
+
+# aseemble header
+    header = f"""\
+# 🎓 PhD Research Report
+
+## Topic: {topic}
+
+| Field          | Value                                        |
+|----------------|----------------------------------------------|
+| **Generated**  | {today}                                      |
+| **Agent**      | PhD Research Agent (LangGraph + GPT-4.1)     |
+| **Sources**    | {n_sources} unique sources                   |
+| **Subtopics**  | {len(state["decomposition"].core_subtopics)} |
+
+---
+
+> ⚠️ *This report was produced by an automated PhD-level research agent.
+> All citations marked `[VERIFY]` should be independently confirmed
+> before use in academic work.*
+
+---
+
+## Table of Contents
+1. [Literature Summary](#output-1--literature-summary)
+2. [Knowledge Map](#output-2--knowledge-map)
+3. [Annotated Bibliography](#output-3--annotated-bibliography)
+
+---
+"""
+    final_report="\n\n".join([
+        header,
+        lit_summary,
+        "\n---\n",
+        bibliography,
+    ])
+    total_words = len(final_report.split())
+    step(log,f"Final Report Assembled : {total_words:,} words")
+
+    return {'final_report':final_report}
