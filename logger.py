@@ -6,6 +6,47 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 
+# ANSI colors
+RESET   = "\033[0m"
+BOLD    = "\033[1m"
+CYAN    = "\033[96m"
+GREEN   = "\033[92m"
+YELLOW  = "\033[93m"
+RED     = "\033[91m"
+MAGENTA = "\033[95m"
+BLUE    = "\033[94m"
+WHITE   = "\033[97m"
+DIM     = "\033[2m"
+
+
+class _ColourFormatter(logging.Formatter):
+    """Console formatter that colourises log records by level."""
+
+    LEVEL_COLOUR={
+        logging.DEBUG: DIM +"[DEBUG]"+RESET,
+        logging.INFO : GREEN + "[INFO]" + RESET,
+        logging.WARNING : YELLOW + "[WARNING]"+RESET,
+        logging.ERROR : RED + '[ERROR]'+RESET,
+        logging.CRITICAL:RED+BOLD+'[CRITICAL]'+RESET,
+    }
+
+    def format(self,record:logging.LogRecord)-> str: 
+        level_tag=self.LEVEL_COLOUR.get(record.levelno,"[?]")
+        #timestamp
+        ts=self.formatTime(record,"%H:%M:%S")
+        ts_str=DIM+ts+RESET
+        name_str=CYAN +record.name + RESET
+        msg=record.getMessage()
+        return f"{ts_str} {level_tag} {name_str} {msg}"
+
+
+
+
+class _PlainFormatter(logging.Formatter):
+    """ Plain formatter for the log file (no ANSI codes)"""
+    def format(self,record:logging.LogRecord)-> str:
+        ts = self.formatTime(record,"%Y-%m-%d %H:%M:%S")
+        return f"{ts} [{record.levelname:<8}] {record.name}{record.getMessage()}"
 
 # Module-level singleton registry 
 _INITIALISED : set[str]=set()
@@ -54,3 +95,4 @@ def get_logger(name:str='research_agent',log_dir:str| Path='logs')->logging.Logg
 
     _INITIALISED.add(name)
     return logger
+
