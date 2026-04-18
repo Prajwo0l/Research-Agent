@@ -29,7 +29,7 @@ def llm():
 def _route_search_tasks(state:ResearchState)-> List[Send]:
     '''Fan-out : one Send per SearchQuery → search_worker(parallel)'''
     decomposition=state['decomposition']
-    log.info(f"Routing{len(decomposition.search_queries)} parallel search tasks...")
+    log.info(f"Routing {len(decomposition.search_queries)} parallel search tasks...")
     return [
         Send(
             'search_worker',
@@ -67,7 +67,7 @@ def _route_synthesis_tasks(state:ResearchState)-> List[Send]:
     ]
 
 
-def build_graph(recursion_limit : int =250)-> StateGraph:
+def build_graph(recursion_limit : int =250)->tuple:
     """
     Construct and compile the full research agent graph.
 
