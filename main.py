@@ -4,8 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0,str(Path(__file__).parent.parent))
-from research_agent import run_research_agent
+from .agent import run_research_agent
 from .logger import get_logger
 
 log = get_logger('main')
