@@ -16,7 +16,7 @@ class SearchQuery(BaseModel):
         'academic_papers',
         'preprints',
         'patents_applied',
-        'grey_litreature',
+        'grey_literature',
         'news_commentary',
         'conference_proceedings',
     ]= Field(...,description = 'Target source domain for this query.')
@@ -41,6 +41,10 @@ class TopicDecomposition(BaseModel):
     disciplines:List[str]=Field(
         ...,
         description='Academic disciplines involved in this topic.',
+    )
+    time_periods:List[str]=Field(
+        default_factory=list,
+        description='Key time periods: founding era, paradigm shifts, recent frontier.',
     )
     search_queries:List[SearchQuery]=Field(
         ...,
@@ -80,7 +84,7 @@ class EvidenceEvaluation(BaseModel):
         ...,
         description='Results with known replication issues or contradicting null findings.'
     )
-    methodological_landscapes:str=Field(
+    methodological_landscape:str=Field(
         ...,
         description='Summary of dominant methods,their strengths/limitations,and emerging approaches',
     )
@@ -126,7 +130,7 @@ class ResearchState(TypedDict):
     evaluation:EvidenceEvaluation
 
     # phase 4
-    synthesis_output:Annotated[List[str],operator.add]
+    synthesis_outputs:Annotated[List[str],operator.add]
 
     # Final
     final_report:str
