@@ -113,7 +113,7 @@ def search_worker(state:SearchWorkerState)-> dict:
     try:
         search = TavilySearchResults(
             max_results=8,
-            search_depths='advanced',
+            search_depth='advanced',
             include_answer=True,
             include_raw_content=False,
             include_images=False,
@@ -134,7 +134,7 @@ def search_worker(state:SearchWorkerState)-> dict:
                 domain=domain,
                 query_used=query,
             ))
-    substep(log,f"Found{len(items)} results")
+    substep(log,f"Found {len(items)} results")
     return {'evidence_items':items}
 
 # Node 3 -Evidence Aggregator
@@ -239,7 +239,7 @@ def synthesis_worker(state:SynthesisWorkerState,llm_strong)-> dict:
     topic = state['topic']
     label = _OUTPUT_LABELS[output_type]
 
-    section_title(log, f"Writing{label}.....")
+    section_title(log, f"Writing {label}....")
 
     # desearialize context 
     evidence_list = json.loads(state['evidence_json'])
@@ -332,8 +332,6 @@ def final_assembler(state: ResearchState)-> dict:
         warn(log,"Annotated Bibliography output not identified- using raw third output")
         bibliography = outputs[2] if len(outputs) > 2 else'(missing)'
 
-
-# aseemble header
     header = f"""\
 # 🎓 PhD Research Report
 
@@ -364,6 +362,8 @@ def final_assembler(state: ResearchState)-> dict:
     final_report="\n\n".join([
         header,
         lit_summary,
+        "\n---\n",
+        knowledge_map,
         "\n---\n",
         bibliography,
     ])
