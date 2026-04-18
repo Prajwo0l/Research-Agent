@@ -46,7 +46,7 @@ class _PlainFormatter(logging.Formatter):
     """ Plain formatter for the log file (no ANSI codes)"""
     def format(self,record:logging.LogRecord)-> str:
         ts = self.formatTime(record,"%Y-%m-%d %H:%M:%S")
-        return f"{ts} [{record.levelname:<8}] {record.name}{record.getMessage()}"
+        return f"{ts} [{record.levelname:<8}] {record.name} {record.getMessage()}"
 
 # Module-level singleton registry 
 _INITIALISED : set[str]=set()
