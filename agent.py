@@ -62,7 +62,7 @@ def run_research_agent(
         'scope':scope,
         'focus':focus,
         'evidence_items':[],
-        'synthesis_output':[],
+        'synthesis_outputs':[],
     }
     t0 = time.perf_counter()
     try:
