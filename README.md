@@ -7,7 +7,7 @@
 ## 📁 Project Structure
 
 ```
-phd_research_agent/
+research_agent/
 │
 ├── __init__.py          ← Package entry-point (exposes run_research_agent)
 ├── main.py              ← CLI entry-point  (python main.py --topic "...")
