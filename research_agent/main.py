@@ -1,31 +1,55 @@
+"""
+main.py
+───────
+CLI entry point for the PhD Research Agent.
+
+Usage
+─────
+  # Minimal
+  python main.py --topic "Transformer attention mechanisms"
+
+  # With scope and focus
+  python main.py \\
+      --topic "CRISPR-Cas9 off-target effects in gene therapy" \\
+      --scope "Peer-reviewed biomedical research 2018–2025" \\
+      --focus "Emphasise safety, clinical trials, and regulatory landscape"
+
+  # Higher recursion limit for broad topics
+  python main.py --topic "Climate change and machine learning" --recursion-limit 300
+"""
+
 from __future__ import annotations
 
 import argparse
 import sys
 from pathlib import Path
 
-from .agent import run_research_agent
-from .logger import get_logger
+# Make sure the package root is importable when running from this directory
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-log = get_logger('main')
+from phd_research_agent import run_research_agent
+from phd_research_agent.logger import get_logger
+
+log = get_logger("main")
+
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        prog = "PhD Research Agent" ,
-        description = "Exhaustive , PhD-level literature review powered by Langgraph + GPT-4.1",
-        formatter_class = argparse.RawTextHelpFormatter,
+        prog="PhD Research Agent",
+        description="Exhaustive, PhD-level literature review powered by LangGraph + GPT-4.1.",
+        formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
-        "--topic","-t",
-        required = True,
+        "--topic", "-t",
+        required=True,
         help="Research topic (required).\nExample: \"Large Language Models in Scientific Discovery\"",
     )
     parser.add_argument(
-        "--scope","-s",
+        "--scope", "-s",
         default=None,
-        help = (
+        help=(
             "Optional scope constraint.\n"
-            "Example: \"Peer-reviewed work 2018-2025,biomedical focus\""
+            "Example: \"Peer-reviewed work 2018–2025, biomedical focus\""
         ),
     )
     parser.add_argument(
@@ -40,7 +64,7 @@ def _parse_args() -> argparse.Namespace:
         "--recursion-limit",
         type=int,
         default=250,
-        help="LangGraph recursion limit (default:250).Increase for broad topics.",
+        help="LangGraph recursion limit (default: 250). Increase for broad topics.",
     )
     return parser.parse_args()
 
@@ -66,6 +90,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-
