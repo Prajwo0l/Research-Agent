@@ -84,7 +84,7 @@ def collect_hitl_response(
 
     for attempt in range(1,max_attempts + 1):
         try:
-            raw = input(f"{BOLD}{CYAN} Your choice [{'/'.join(valid)}]: {RESET}").strip().lower
+            raw = input(f"{BOLD}{CYAN} Your choice [{'/'.join(valid)}]: {RESET}").strip().lower()
         except(EOFError,KeyboardInterrupt):
             print(f"\n{RED} Interrupted--aborting pipeline.{RESET}")
             raise PipelineAbortedError("stdin","Keyboard interrupt")
