@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-class PipelineAbotedError(Exception):
+class PipelineAbortedError(Exception):
     """
     Raised when a human chooses to abort at a HITL checkpoint
     """
