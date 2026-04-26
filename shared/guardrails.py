@@ -104,13 +104,12 @@ def run_guardrail_1_query_validator(
     results: List[GuardrailResult] = []
     
     #block too few
-    if n< 5:
+    if n < 5:
         r = _apply_or_raise(GuardrailResult(
-            guardrail = NAME,status="block",
-            message=f"TOO many queries : {n} Maximum is 25 to avoid runawy API costs",
-            details ={"query_count":n},
-
-        ),mode)
+            guardrail=NAME, status="block",
+            message=f"Too few queries: {n}. Minimum is 5 for adequate coverage.",
+            details={"query_count": n},
+        ), mode)
         results.append(r)
         if r.is_blocking():
             raise GuardrailError(NAME,r.message,r.details)
@@ -174,12 +173,82 @@ def run_guardrail_1_query_validator(
     
     if not results:
         results.append(_apply_or_raise(GuardrailResult(
-            guardrail=NAME,status="pass",
-            message=f"ALL{n} queries passed valiadation.",
-            details={'query_count':n},
-        ),mode))
+            guardrail=NAME, status="pass",
+            message=f"All {n} queries passed validation.",
+            details={'query_count': n},
+        ), mode))
     return results
 
 
+def run_guardrail_2_source_quality(
+    items: list,
+    mode: str = "strict",
+):
+    """
+    Validate and clean the evidence corpus.
+    Removes items with missing/bad URLs, duplicate URLs, and very short snippets.
+
+    BLOCK rules (halt if mode=strict):
+      - Fewer than 3 valid sources remain after cleaning
+
+    WARN rules (log and continue):
+      - More than 30% of sources were stripped
+    """
+    NAME = "Guardrail-2: Source Quality Filter"
+    results: List[GuardrailResult] = []
+
+    original_count = len(items)
+    cleaned: list = []
+    seen_urls: set = set()
+
+    for item in items:
+        url = getattr(item, "url", "") or ""
+        snippet = getattr(item, "snippet", "") or ""
+
+        # Skip items with no URL or obviously bad URLs
+        if not url or not url.startswith("http"):
+            continue
+
+        # Skip duplicates
+        if url in seen_urls:
+            continue
+
+        # Skip items with very short snippets (likely empty/junk)
+        if len(snippet.strip()) < 20:
+            continue
+
+        seen_urls.add(url)
+        cleaned.append(item)
+
+    removed = original_count - len(cleaned)
+    removal_pct = (removed / original_count * 100) if original_count > 0 else 0
+
+    # WARN: high removal rate
+    if removal_pct > 30:
+        results.append(_apply_or_raise(GuardrailResult(
+            guardrail=NAME, status="warn",
+            message=f"{removal_pct:.0f}% of sources removed during quality filtering ({removed}/{original_count}).",
+            details={"removed": removed, "original": original_count},
+        ), mode))
+
+    # BLOCK: too few sources remain
+    if len(cleaned) < 3:
+        r = _apply_or_raise(GuardrailResult(
+            guardrail=NAME, status="block",
+            message=f"Only {len(cleaned)} valid sources remain after filtering. Minimum is 3.",
+            details={"remaining": len(cleaned)},
+        ), mode)
+        results.append(r)
+        if r.is_blocking():
+            raise GuardrailError(NAME, r.message, r.details)
+
+    if not results:
+        results.append(_apply_or_raise(GuardrailResult(
+            guardrail=NAME, status="pass",
+            message=f"All {len(cleaned)} sources passed quality filter.",
+            details={"remaining": len(cleaned)},
+        ), mode))
+
+    return cleaned, results
 
 
