@@ -27,8 +27,8 @@ from pathlib import Path
 # Make sure the package root is importable when running from this directory
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from phd_research_agent import run_research_agent
-from phd_research_agent.logger import get_logger
+from research_agent import run_research_agent
+from research_agent.logger import get_logger
 
 log = get_logger("main")
 
