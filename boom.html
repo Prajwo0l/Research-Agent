@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talchhikhel Katti Roll - Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fefefe; /* Near white background */
+            color: #1f2937; /* Dark gray text */
+        }
+        .header-bg {
+            background: linear-gradient(to right, #ef4444, #dc2626); /* Red gradient */
+            color: white;
+            padding: 2.5rem 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .menu-category-title {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 12px;
+            margin-bottom: 2.5rem;
+            font-size: 2.5rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            color: #dc2626; /* Red-600 */
+        }
+        .menu-category-title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: #f87171; /* Red-400 */
+            border-radius: 2px;
+        }
+        .menu-item-card {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.75rem; /* rounded-lg */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); /* Stronger shadow */
+            border: 1px solid #fecaca; /* Red-200 border */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .menu-item-card:hover {
+            transform: translateY(-8px); /* More pronounced lift */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Darker shadow on hover */
+        }
+        .price {
+            font-weight: 700; /* font-bold */
+            color: #b91c1c; /* Red-700 */
+            font-size: 1.25rem; /* text-xl */
+            margin-top: 0.75rem;
+            display: block;
+        }
+        .sub-category-title {
+            font-size: 2rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: #dc2626; /* Red-600 */
+            margin-bottom: 1.5rem;
+            text-align: center;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        .sub-category-title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 2px;
+            background-color: #fca5a5; /* Red-300 */
+            border-radius: 1px;
+        }
+        .icon-container {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 60px;
+            height: 60px;
+            background-color: #fee2e2; /* Red-100 */
+            border-radius: 50%;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .icon-container svg {
+            width: 36px;
+            height: 36px;
+            color: #dc2626; /* Red-600 */
+        }
+        .feedback-button {
+            display: inline-block;
+            background-color: #dc2626; /* Red-600 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
+        }
+        .feedback-button:hover {
+            background-color: #b91c1c; /* Red-700 */
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="min-h-screen flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
+        <header class="header-bg w-full mb-10 rounded-b-xl">
+            <h1 class="text-5xl sm:text-6xl font-extrabold mb-4 tracking-tight">
+                TALCHHIKHEL KATTI ROLL
+            </h1>
+            <p class="text-xl sm:text-2xl font-medium italic">
+                Your Spot for Delicious Rolls & More!
+            </p>
+        </header>
+
+        <div class="max-w-5xl w-full bg-white shadow-2xl rounded-xl p-8 sm:p-10 lg:p-12 border border-red-100">
+
+            <section class="mb-12">
+                <h2 class="text-center menu-category-title">Our Speciality: Katti Rolls</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="menu-item-card">
+                        <div class="icon-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-burrito">
+                                <path d="M6 12c0 2.76 2.69 5 6 5s6-2.24 6-5"/>
+                                <path d="M4.5 12h15"/>
+                                <path d="M12 2a4 4 0 0 0-4 4v.5A2.5 2.5 0 0 1 7.5 9h9A2.5 2.5 0 0 1 16 6.5V6a4 4 0 0 0-4-4Z"/>
+                                <path d="M12 17c-3.31 0-6 2.24-6 5h12c0-2.76-2.69-5-6-5Z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-2xl font-bold text-gray-900 mb-2 text-center">Double Chicken Roll</h4>
+                        <p class="text-gray-700 leading-relaxed text-center">Double the chicken, double the flavor! A hearty and satisfying roll.</p>
+                        <span class="price text-center">NPR 300</span>
+                    </div>
+                    <div class="menu-item-card">
+                        <div class="icon-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-burrito">
+                                <path d="M6 12c0 2.76 2.69 5 6 5s6-2.24 6-5"/>
+                                <path d="M4.5 12h15"/>
+                                <path d="M12 2a4 4 0 0 0-4 4v.5A2.5 2.5 0 0 1 7.5 9h9A2.5 2.5 0 0 1 16 6.5V6a4 4 0 0 0-4-4Z"/>
+                                <path d="M12 17c-3.31 0-6 2.24-6 5h12c0-2.76-2.69-5-6-5Z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-2xl font-bold text-gray-900 mb-2 text-center">Chicken Roll</h4>
+                        <p class="text-gray-700 leading-relaxed text-center">Classic chicken roll, perfectly spiced and wrapped.</p>
+                        <span class="price text-center">NPR 150</span>
+                    </div>
+                    <div class="menu-item-card">
+                        <div class="icon-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-burrito">
+                                <path d="M6 12c0 2.76 2.69 5 6 5s6-2.24 6-5"/>
+                                <path d="M4.5 12h15"/>
+                                <path d="M12 2a4 4 0 0 0-4 4v.5A2.5 2.5 0 0 1 7.5 9h9A2.5 2.5 0 0 1 16 6.5V6a4 4 0 0 0-4-4Z"/>
+                                <path d="M12 17c-3.31 0-6 2.24-6 5h12c0-2.76-2.69-5-6-5Z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-2xl font-bold text-gray-900 mb-2 text-center">Egg + Chicken Roll</h4>
+                        <p class="text-gray-700 leading-relaxed text-center">A delicious combination of egg and chicken in a roll.</p>
+                        <span class="price text-center">NPR 180</span>
+                    </div>
+                    <div class="menu-item-card">
+                        <div class="icon-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-burrito">
+                                <path d="M6 12c0 2.76 2.69 5 6 5s6-2.24 6-5"/>
+                                <path d="M4.5 12h15"/>
+                                <path d="M12 2a4 4 0 0 0-4 4v.5A2.5 2.5 0 0 1 7.5 9h9A2.5 2.5 0 0 1 16 6.5V6a4 4 0 0 0-4-4Z"/>
+                                <path d="M12 17c-3.31 0-6 2.24-6 5h12c0-2.76-2.69-5-6-5Z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-2xl font-bold text-gray-900 mb-2 text-center">Paneer Roll</h4>
+                        <p class="text-gray-700 leading-relaxed text-center">Soft paneer (Indian cheese) cooked with spices, rolled to perfection.</p>
+                        <span class="price text-center">NPR 150</span>
+                    </div>
+                    <div class="menu-item-card">
+                        <div class="icon-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-burrito">
+                                <path d="M6 12c0 2.76 2.69 5 6 5s6-2.24 6-5"/>
+                                <path d="M4.5 12h15"/>
+                                <path d="M12 2a4 4 0 0 0-4 4v.5A2.5 2.5 0 0 1 7.5 9h9A2.5 2.5 0 0 1 16 6.5V6a4 4 0 0 0-4-4Z"/>
+                                <path d="M12 17c-3.31 0-6 2.24-6 5h12c0-2.76-2.69-5-6-5Z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-2xl font-bold text-gray-900 mb-2 text-center">Chicken Cheese Roll</h4>
+                        <p class="text-gray-700 leading-relaxed text-center">Mouth-watering chicken and gooey cheese, a delightful combination.</p>
+                        <span class="price text-center">NPR 250</span>
+                    </div>
+                    <div class="menu-item-card">
+                        <div class="icon-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-burrito">
+                                <path d="M6 12c0 2.76 2.69 5 6 5s6-2.24 6-5"/>
+                                <path d="M4.5 12h15"/>
+                                <path d="M12 2a4 4 0 0 0-4 4v.5A2.5 2.5 0 0 1 7.5 9h9A2.5 2.5 0 0 1 16 6.5V6a4 4 0 0 0-4-4Z"/>
+                                <path d="M12 17c-3.31 0-6 2.24-6 5h12c0-2.76-2.69-5-6-5Z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-2xl font-bold text-gray-900 mb-2 text-center">Aloo Roll</h4>
+                        <p class="text-gray-700 leading-relaxed text-center">Spiced potato filling, a simple yet flavorful vegetarian option.</p>
+                        <span class="price text-center">NPR 100</span>
+                    </div>
+                    <div class="menu-item-card">
+                        <div class="icon-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-burrito">
+                                <path d="M6 12c0 2.76 2.69 5 6 5s6-2.24 6-5"/>
+                                <path d="M4.5 12h15"/>
+                                <path d="M12 2a4 4 0 0 0-4 4v.5A2.5 2.5 0 0 1 7.5 9h9A2.5 2.5 0 0 1 16 6.5V6a4 4 0 0 0-4-4Z"/>
+                                <path d="M12 17c-3.31 0-6 2.24-6 5h12c0-2.76-2.69-5-6-5Z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-2xl font-bold text-gray-900 mb-2 text-center">Single Egg Roll</h4>
+                        <p class="text-gray-700 leading-relaxed text-center">A light and quick roll with a single egg filling.</p>
+                        <span class="price text-center">NPR 100</span>
+                    </div>
+                    <div class="menu-item-card">
+                        <div class="icon-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-burrito">
+                                <path d="M6 12c0 2.76 2.69 5 6 5s6-2.24 6-5"/>
+                                <path d="M4.5 12h15"/>
+                                <path d="M12 2a4 4 0 0 0-4 4v.5A2.5 2.5 0 0 1 7.5 9h9A2.5 2.5 0 0 1 16 6.5V6a4 4 0 0 0-4-4Z"/>
+                                <path d="M12 17c-3.31 0-6 2.24-6 5h12c0-2.76-2.69-5-6-5Z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-2xl font-bold text-gray-900 mb-2 text-center">Double Egg Roll</h4>
+                        <p class="text-gray-700 leading-relaxed text-center">More egg for a richer flavor, a satisfying snack.</p>
+                        <span class="price text-center">NPR 130</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-12">
+                <h2 class="text-center menu-category-title">Other Food Items</h2>
+
+                <div class="mb-8">
+                    <h3 class="sub-category-title">MO:MO</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="menu-item-card">
+                            <div class="icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bowl">
+                                    <path d="M2 16h20"/>
+                                    <path d="M12 16a9 9 0 0 1-9-9h18a9 9 0 0 1-9 9Z"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1 text-center">Chicken MoMo</h4>
+                            <p class="text-gray-600 text-sm mb-2 text-center">Steamed dumplings filled with seasoned minced chicken.</p>
+                            <span class="price text-center">NPR 150</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="sub-category-title">Chowmein</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="menu-item-card">
+                            <div class="icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils">
+                                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                                    <path d="M7 2v20"/>
+                                    <path d="M21 15V2h-2c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h2v3"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1 text-center">Chicken Chowmein</h4>
+                            <p class="text-gray-600 text-sm mb-2 text-center">Stir-fried noodles with chicken and vegetables.</p>
+                            <span class="price text-center">NPR 150</span>
+                        </div>
+                        <div class="menu-item-card">
+                            <div class="icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils">
+                                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                                    <path d="M7 2v20"/>
+                                    <path d="M21 15V2h-2c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h2v3"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1 text-center">Egg Chowmein</h4>
+                            <p class="text-gray-600 text-sm mb-2 text-center">Stir-fried noodles with egg and vegetables.</p>
+                            <span class="price text-center">NPR 130</span>
+                        </div>
+                        <div class="menu-item-card">
+                            <div class="icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils">
+                                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                                    <path d="M7 2v20"/>
+                                    <path d="M21 15V2h-2c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h2v3"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1 text-center">Mixed Chowmein</h4>
+                            <p class="text-gray-600 text-sm mb-2 text-center">A mix of chicken, egg, and vegetables with noodles.</p>
+                            <span class="price text-center">NPR 180</span>
+                        </div>
+                        <div class="menu-item-card">
+                            <div class="icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils">
+                                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                                    <path d="M7 2v20"/>
+                                    <path d="M21 15V2h-2c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h2v3"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1 text-center">Veg Chowmein</h4>
+                            <p class="text-gray-600 text-sm mb-2 text-center">Stir-fried noodles with fresh vegetables.</p>
+                            <span class="price text-center">NPR 100</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="sub-category-title">Grilled Chicken Leg Piece</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="menu-item-card">
+                            <div class="icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-drumstick">
+                                    <path d="M15.5 17a2.5 2.5 0 0 1-2.5 2.5H10A2.5 2.5 0 0 1 7.5 17V7.5A2.5 2.5 0 0 1 10 5h3a2.5 2.5 0 0 1 2.5 2.5Z"/>
+                                    <path d="M17.5 15.5a2.5 2.5 0 0 1 2.5-2.5V10a2.5 2.5 0 0 1-2.5-2.5H7.5"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1 text-center">Grilled Chicken Leg Piece</h4>
+                            <p class="text-gray-600 text-sm mb-2 text-center">Succulent grilled chicken leg, price depends on weight.</p>
+                            <span class="price text-center">NPR 200+</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-12">
+                <h2 class="text-center menu-category-title">Drinks</h2>
+
+                <div class="mb-8">
+                    <h3 class="sub-category-title">Soft Drinks</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="menu-item-card">
+                            <div class="icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cup-soda">
+                                    <path d="m10 14 1.8-4.75a2 2 0 0 1 2.45-1.2l.09.04a2 2 0 0 1 .9 3.8l-6.4 2.5"/>
+                                    <path d="M12 22a6 6 0 0 0 6-6V4H6v12a6 6 0 0 0 6 6Z"/>
+                                    <path d="M12 4V2"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1 text-center">Coke</h4>
+                            <span class="price text-center">NPR 40</span>
+                        </div>
+                        <div class="menu-item-card">
+                            <div class="icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cup-soda">
+                                    <path d="m10 14 1.8-4.75a2 2 0 0 1 2.45-1.2l.09.04a2 2 0 0 1 .9 3.8l-6.4 2.5"/>
+                                    <path d="M12 22a6 6 0 0 0 6-6V4H6v12a6 6 0 0 0 6 6Z"/>
+                                    <path d="M12 4V2"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1 text-center">Fanta</h4>
+                            <span class="price text-center">NPR 40</span>
+                        </div>
+                        <div class="menu-item-card">
+                            <div class="icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cup-soda">
+                                    <path d="m10 14 1.8-4.75a2 2 0 0 1 2.45-1.2l.09.04a2 2 0 0 1 .9 3.8l-6.4 2.5"/>
+                                    <path d="M12 22a6 6 0 0 0 6-6V4H6v12a6 6 0 0 0 6 6Z"/>
+                                    <path d="M12 4V2"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1 text-center">Sprite</h4>
+                            <span class="price text-center">NPR 40</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="text-center mt-12 pt-8 border-t border-red-200">
+                <h2 class="text-4xl font-bold text-gray-800 mb-8 menu-category-title">Contact Us</h2>
+                <div class="space-y-4 text-lg text-gray-700">
+                    <p>
+                        <strong class="font-semibold text-gray-900">Address:</strong>
+                        Talchhikhel, Lalitpur, Nepal (<a href="https://www.google.com/maps/place/Talchhikhel+Kathi+Roll/@27.6573084,85.3196097,20.47z/data=!4m6!3m5!1s0x39eb17ed776a6729:0x6b464d8d8a99e1fc!8m2!3d27.6573591!4d85.3195611!16s%2Fg%2F11g0lktcrr?entry=ttu&g_ep=EgoyMDI1MDUyNi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">View on Map</a>)
+                    </p>
+                    <p>
+                        <strong class="font-semibold text-gray-900">Phone:</strong>
+                        <a href="tel:+977-9823940601" class="text-blue-600 hover:underline">+977-9841598144</a>
+                    </p>
+                    <a href="https://www.google.com/maps/place/Talchhikhel+Kathi+Roll/@27.6573084,85.3196097,20.47z/data=!4m6!3m5!1s0x39eb17ed776a6729:0x6b464d8d8a99e1fc!8m2!3d27.6573591!4d85.3195611!16s%2Fg%2F11g0lktcrr?entry=ttu&g_ep=EgoyMDI1MDUyNi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer" class="feedback-button">
+                        Rate and Give Feedback!
+                    </a>
+                    <p class="text-sm text-gray-500 italic mt-4">
+                        (Prices are Inclusive of all Applicable Charges & Tax)
+                    </p>
+                </div>
+            </section>
+
+            <section class="text-center mt-12 pt-8 border-t border-gray-200">
+                <h2 class="text-4xl font-bold text-gray-800 mb-8 menu-category-title">About Us</h2>
+                <div class="space-y-4 text-lg text-gray-700">
+                    <p>
+                        Talchhikhel Katti Roll was established in <strong class="font-semibold text-gray-900">2018</strong>,
+                        born from a passion for authentic flavors and quality food.
+                    </p>
+                    <p>
+                        Our culinary journey is led by our hard-working and passionate chef,
+                        <strong class="font-semibold text-gray-900">Sunita Sen</strong>, who brings over <strong class="font-semibold text-gray-900">20 years</strong>
+                        of invaluable experience in the food industry. She is dedicated to crafting
+                        each katti roll and every dish with the utmost care and flavor.
+                    </p>
+                </div>
+            </section>
+
+            <footer class="text-center mt-12 pt-8 border-t border-gray-100 text-gray-500 text-sm">
+                <p>© 2025 Talchhikhel Katti Roll. All rights reserved.</p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>
