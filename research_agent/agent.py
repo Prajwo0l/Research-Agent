@@ -16,7 +16,7 @@ from shared.hitl_cli import collect_hitl_response,display_hitl_prompt,build_hitl
 from shared.exceptions import PipelineAbortedError
 
 
-load_dotenv(Path(__file__).parent / '.env')
+load_dotenv(Path(__file__).parent.parent / '.env')
 
 log=get_logger(__name__)
 
