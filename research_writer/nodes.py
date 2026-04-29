@@ -145,4 +145,135 @@ def content_aggregator(state :WriterState)-> dict:
     step(log, f"Usable sources : {len([f for f in fetched if f.content])}")
     return {}
 
+############################## Cluster Planner
 
+def cluster_planner(state:WriterState,llm_strong)->dict:
+    writer_input=state['writer_input']
+    fetched = state.get("fetched_sources",[])
+    usable = [f for f in fetched if f.content]
+
+    phase_banner(log,2,"Thematic Clustering & Document Planning")
+    log.info(f"Clustering{len(usable)} usable sources into {writer_input.max_clusters} themes....")
+
+    source_digest = "\n\n".join([
+        f"[{i+1}] TITLE : {s.title}\n"
+        f" URL :{s.url}\n"
+        f" DOMAIN : {s.domain}\n"
+        f" TEXT :{s.content[:400]}"
+        for i, s in enumerate(usable[:60]) 
+    ])
+    lit_context = _build_literature_context(writer_input)
+    cluster_plan : ClusterPlan =(
+        llm_strong.with_structured_output(ClusterPlan).invoke([
+            SystemMessage(content=CLUSTER_PLANNER_SYSTEM.format(
+                max_clusters=writer_input.max_clusters,
+            )),
+            HumanMessage(content=CLUSTER_PLANNER_USER.format(
+                topic=writer_input.topic,
+                scope=writer_input.scope or "global coverage",
+                focus=writer_input.focus or "all major angles",
+                max_clusters=writer_input.max_clusters,
+                literature_context=lit_context[:3000],
+                n_sources=len(usable),
+                source_digest=source_digest,
+
+            )),
+        ])
+    )
+    step(log,f"Document title : {cluster_plan.document_title}")
+    step(log, f"Cluster planned :{len(cluster_plan.clusters)}")
+    for cl in cluster_plan.clusters:
+        substep(log,f"[{cl.cluster_id:02d}]{cl.section_title:<45}{len(cl.source_urls)}src")
+
+    return {"cluster_plan":cluster_plan}
+
+
+
+####################### Stage 3 Debate Worker (mirofish , parallel per cluster)
+
+def debate_worker(state:DebateWorkerState,llm_writer,llm_critic)-> dict:
+    cluster= state['cluster']
+    sources = state['fetched_sources']
+    topic = state["topic"]
+    lit_context = state['literature_context']
+    max_rounds=state['max_rounds']
+    target_words = state['target_words']
+
+    extra_instruction = state.get("extra_instruction","")
+    phase_banner(log,3,f"Debate --{cluster.section_title[:45]}")
+    log.info(f"Cluster [{cluster.cluster_id:02d}] | {len(sources)} sources | {max_rounds} rounds")
+
+    if extra_instruction:
+        log.info(f"Extra Instruction from human reviewer : {extra_instruction[:80]}")
+    source_content = _format_source_content(sources)
+    turns : List[DebateTurn]=[]
+
+    #Round 0 : Initial Draft 
+    debate_banner (log,0,"Initial Draft")
+    system_content = WRITER_INITIAL_SYSTEM.format(
+        theme = cluster.theme,section_title=cluster.section_title,
+        writing_goal = cluster.writing_goal, target_words=target_words,
+        topic = topic,n_sources=len(sources),
+    )
+    if extra_instruction:
+        system_content += f"\n\nADDITIONAL INSTRUCTION FROM HUMAN REVIEWER :\n{extra_instruction}"
+
+    init_result=llm_writer.invoke([
+        SystemMessage(content=system_content),
+        HumanMessage(content=WRITER_INITIAL_USER.format(
+            theme=cluster.theme,section_title=cluster.section_title,
+            writing_goal=cluster.writing_goal,target_words=target_words,
+            literature_context=lit_context[:1_500],
+            n_sources=len(sources), source_content=source_content,
+        )),
+    ])
+    current_draft=init_result.content
+    turns.append(DebateTurn(role="writer",content=current_draft,round=0))
+    writer_says(log,current_draft)
+
+    for round_num in range(1,max_rounds+1):
+        debate_banner(log,round_num,cluster.theme)
+
+        crit_result=llm_critic.invoke([
+            SystemMessage(content=CRITIC_SYSTEM.format(target_words=target_words)),
+            HumanMessage(content=CRITIC_USER.format(
+                theme=cluster.theme,writing_goal=cluster.writing_goal,
+                target_words=target_words,round_num=round_num,
+                draft=current_draft,source_content=source_content[:4_000],
+            )),
+        ])
+        critique=crit_result.content
+        turns.append(DebateTurn(role="critic",content=critique,round=round_num))
+        critic_says(log,critique)
+
+        rev_result=llm_writer.invoke([
+            SystemMessage(content=WRITER_REVISION_SYSTEM.format(target_words=target_words)),
+            HumanMessage(content=WRITER_REVISION_USER.format(
+                theme=cluster.theme,target_words=target_words,
+                draft=current_draft,critique=critique,
+                source_content=source_content[:3_000],
+            )),
+        ])
+        current_draft=rev_result.content
+        turns.append(DebateTurn(role="writer",content=current_draft,round=round_num))
+        writer_says(log,current_draft)
+
+        # Final Polish 
+    substep(log,"Final polish pass...")
+    polish_result=llm_writer.invoke([
+            SystemMessage(content=POLISH_SYSTEM.format(target_words=target_words)),
+            HumanMessage(content=POLISH_USER.format(
+                theme=cluster.theme, section_title=cluster.section_title,
+                target_words=target_words,draft=current_draft,
+            )),
+        ])
+    final_section = polish_result.content
+    word_count = len(final_section.split())
+
+    step(log, f"Section done -> {word_count}words | {max_rounds} rounds")
+    result = DebateResult(
+            cluster_id=cluster.cluster_id, cluster_theme = cluster.theme,
+            section_title=cluster.section_title, debate_turns=turns,
+            final_section = final_section, word_count=word_count,rounds_taken=max_rounds,
+        )
+    return {"debate_results":[result]}
