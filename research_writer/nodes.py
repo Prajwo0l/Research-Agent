@@ -277,3 +277,133 @@ def debate_worker(state:DebateWorkerState,llm_writer,llm_critic)-> dict:
             final_section = final_section, word_count=word_count,rounds_taken=max_rounds,
         )
     return {"debate_results":[result]}
+
+#################stage 3 b - debate aggregator
+
+def debate_aggregator(state:WriterState)->dict:
+    results= state.get("debate_results",[])
+    real_sections=[r for r in results if r.section_title != "__intro_conclusion__"]
+    sorted_results=sorted(real_sections,key=lambda r: r.cluster_id)
+
+    total_words = sum(r.word_count for r in sorted_results)
+    total_rounds=sum(r.rounds_taken for r in sorted_results)
+
+    phase_banner(log,4,"All Debates Complete")
+    step(log, f"Section written : {len(sorted_results)}")
+    step(log, f"Total words : {total_words:,}")
+    step(log, f"Total rounds : {total_rounds}")
+    for r in sorted_results:
+        substep(log,f"[{r.cluster_id:02d}] {r.section_title[:50]:<50} {r.word_count:>5} words")
+
+    return {"debate_results": sorted_results}
+
+
+###########################stage 4 a Introduction + Conclusion Writer
+
+def intro_conclusion_writer(state: WriterState,llm_strong)-> dict:
+    writer_input = state['writer_input']
+    cluster_plan = state['cluster_plan']
+    debate_results= state.get("debate_results",[])
+
+    phase_banner(log,5,"Writing Introduction and conclusion")
+    section_summaries= "\n\n".join([
+        f"Section {r.cluster_id}:{r.section_title}\n"
+        f"Theme : {r.cluster_theme}\n"
+        f"Opening: {r.final_section[:350]}..."
+        for r in debate_results
+        if r.section_title != "__intro_conclusion__"
+        ])
+
+    result=llm_strong.invoke([
+        SystemMessage(content=ASSEMBLER_SYSTEM),
+        HumanMessage(content=ASSEMBLER_USER.format(
+            document_title=cluster_plan.document_title,
+            topic=writer_input.topic,
+            abstract=cluster_plan.document_abstract,
+            section_summaries=section_summaries,
+        )),
+    ])
+    text=result.content
+    step(log, f"Intro + Conclusion -> {len(text.split())}words")
+
+    placeholder=DebateResult(
+        cluster_id=-1,cluster_theme="__framing__",
+        section_title="__intro_conclusion__",
+        debate_turns=[],final_section=text,
+        word_count=len(text.split()), rounds_taken=0,
+    )
+    return {"debate_results":[placeholder]}
+
+
+############################Stage 4b Document Assembler
+
+def document_assembler(state : WriterState)-> dict:
+    writer_input=state["writer_input"]
+    cluster_plan=state["cluster_plan"]
+    debate_results=state.get("debate_results",[])
+    today = date.today().strftime("%B %d , %Y ")
+
+    phase_banner(log,6,"Document Assembly")
+    intro_conclusion_text=""
+    body_sections:List[DebateResult]=[]
+
+    for r in debate_results:
+        if r.section_title=="__intro_conclusion__":
+            intro_conclusion_text=r.final_section
+        else:
+            body_sections.append(r)
+    body_sections.sort(key=lambda r: r.cluster_id)
+
+    intro_text = conclusion_text="" 
+    if intro_conclusion_text:
+        if '## Conckusion' in intro_conclusion_text:
+            split=intro_conclusion_text.split("## Conclusion",1)
+            intro_text = split[0].replace('## Introduction', "").strip()
+            conclusion_text=split[1].strip()
+        else:
+            intro_text = intro_conclusion_text.replace("## Introduction", "").strip()
+    n_fetched_usable=len([f for f in state.get("fetched_sources",[])if f.content])
+    total_rounds=sum(r.rounds_taken for r in body_sections)
+
+    doc_parts:list[str]=[]
+    doc_parts.append(
+        f"# {cluster_plan.document_title}\n\n"
+        f"> **Topic:** {writer_input.topic} \n"
+        f"> **Generated:** {today}\n"
+        f"> **Method:** Mirofish Writer<-> Critic debate ({total_rounds}total_rounds) \n"
+        f"> ** Sources fetched: **{n_fetched_usable} \n"
+        f"> **Sections:** {len(body_sections)} \n\n--\n"
+    )
+    doc_parts.append(f"## Abstract\n\n {cluster_plan.document_abstract}\n\n --\n")
+    toc = ["## Table of Contents\n", "1. [Introduction](#introduction)"]
+    for r in body_sections:
+        slug = re.sub(r"[^\w\s-]", "", r.section_title.lower())
+        slug = re.sub(r"\s+", "-", slug)
+        toc.append(f"{r.cluster_id + 1}. [{r.section_title}](#{slug})")
+    toc.append(f"{len(body_sections) + 2}. [Conclusion](#conclusion)")
+    doc_parts.append("\n".join(toc) + "\n\n---\n")
+
+    if intro_text:
+        doc_parts.append(f"## Introduction\n\n{intro_text}\n\n---\n")
+    for r in body_sections:
+        doc_parts.append(f"## {r.section_title}\n\n{r.final_section}\n\n---\n")
+    if conclusion_text:
+        doc_parts.append(f"## Conclusion\n\n{conclusion_text}\n\n---\n")
+
+    total_words = sum(len(p.split()) for p in doc_parts)
+    doc_parts.append(
+        f"*Document by Research Writer (Mirofish). "
+        f"~{total_words:,} words | {len(body_sections)} sections | {total_rounds} debate rounds*\n"
+    )
+
+    full_document = "\n".join(doc_parts)
+    step(log, f"Document assembled → ~{total_words:,} words | {len(body_sections)} sections")
+
+    writer_output = WriterOutput(
+        topic=writer_input.topic, document_title=cluster_plan.document_title,
+        abstract=cluster_plan.document_abstract, sections=body_sections,
+        full_document=full_document, output_path="",
+        total_words=total_words, total_rounds=total_rounds,
+        sources_used=n_fetched_usable,
+    )
+    return {"writer_output": writer_output}
