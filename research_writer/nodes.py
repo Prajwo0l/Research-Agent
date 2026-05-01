@@ -407,3 +407,57 @@ def document_assembler(state : WriterState)-> dict:
         sources_used=n_fetched_usable,
     )
     return {"writer_output": writer_output}
+
+################## Stage 4c Save Document
+
+def save_document(state:WriterState)-> dict:
+    """
+    Write the final document and debate transcript to disk
+    """
+    writer_output=state['writer_output']
+    topic = state['writer_input'].topic
+    debate_results=state.get('debate_results',[])
+
+    safe_topic = re.sub(r"[^\w\s-]","",topic.lower())
+    safe_topic=re.sub(r"\s+","_",safe_topic)[:60]
+    today_str=date.today().strftime("%Y%m%d")
+
+    output_dir = Path(__file__).parent/"outputs"
+    output_dir.mkdir(parents=True,exist_ok=True)
+
+
+    #########Save Document#######################
+    doc_path=output_dir / f'{today_str}_{safe_topic}_research_document.md'
+    doc_path.write_text(writer_output.full_document,encoding="utf-8")
+    doc_kb=doc_path.stat().st_size /1024
+    success(log, f"Document saved -> {doc_path.name} ({doc_kb:.1f} KB)")
+
+    ##################Save transcript
+    transcript_lines:list[str] =[
+        f' # Debate Transcript \n\n'
+        f"**Topic:** {topic} \n"
+        f"**Generated:** {date.today().strftime('%B %d, %Y')} \n\n---\n"
+        
+    ]
+    for r in debate_results:
+        if r.section_title== "__intro_conclusion__":
+            continue
+        transcript_lines.append(
+            f"\n## Cluster [{r.cluster_id}]: {r.section_title}\n\n"
+            f"*Theme : {r.cluster_theme} | Rounds : {r.rounds_taken}*\n"
+        )
+        for turn in r.debate_turns:
+            icon = "✍" if turn.role == "writer" else "🔍"
+            transcript_lines.append(
+                f"\n### {icon} {turn.role.upper()} -- Round {turn.round}\n\n"
+                f"{turn.content}\n\n ---\n"
+            )
+        transcript_lines.append(
+            f"\n### FINAL \N\N{r.final_section}\n\n{'='*60}\n"            
+        )
+    transcript_path=output_dir /f"{today_str}_{safe_topic}_debate_transcript.md"
+    transcript_path.write_text("\n".join(transcript_lines), encoding="utf-8")
+    step(log,f"Transcript saved -> {transcript_path.name}")
+
+    writer_output.output_path=str(doc_path.resolve())
+    return {'writer_output': writer_output}
