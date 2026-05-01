@@ -434,7 +434,7 @@ def save_document(state:WriterState)-> dict:
 
     ##################Save transcript
     transcript_lines:list[str] =[
-        f' # Debate Transcript \n\n'
+        f'# Debate Transcript \n\n'
         f"**Topic:** {topic} \n"
         f"**Generated:** {date.today().strftime('%B %d, %Y')} \n\n---\n"
         
@@ -453,7 +453,7 @@ def save_document(state:WriterState)-> dict:
                 f"{turn.content}\n\n ---\n"
             )
         transcript_lines.append(
-            f"\n### FINAL \N\N{r.final_section}\n\n{'='*60}\n"            
+            f"\n### FINAL \n\n{r.final_section}\n\n{'='*60}\n"            
         )
     transcript_path=output_dir /f"{today_str}_{safe_topic}_debate_transcript.md"
     transcript_path.write_text("\n".join(transcript_lines), encoding="utf-8")
