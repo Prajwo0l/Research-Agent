@@ -109,9 +109,9 @@ def build_writer_graph(
     builder.add_node("document_assembler", document_assembler)
     builder.add_node("save_document", save_document)
 
-    builder.add_contional_edges(START,_route_fetch_tasks,['fetch_worker'])
+    builder.add_conditional_edges(START, _route_fetch_tasks, ['fetch_worker'])
     builder.add_edge('fetch_worker', 'content_aggregator')
-    builder.add_edge('content_aggregator', cluster_planner)
+    builder.add_edge('content_aggregator', 'cluster_planner')
     builder.add_conditional_edges(
         'cluster_planner',
         _route_debate_tasks,
@@ -124,7 +124,9 @@ def build_writer_graph(
 
     builder.add_edge('save_document', END)
 
-    return builder.compile(recursion_limit=recursion_limit)
+    memory = MemorySaver()
+    graph = builder.compile(checkpointer=memory)
+    return graph, recursion_limit
 
 
 
