@@ -63,7 +63,7 @@ class ClusterPlan(BaseModel):
 class DebateTurn(BaseModel):
     role : str
     content :str
-    round :str
+    round: int
 
 class DebateResult(BaseModel):
     cluster_id :int
@@ -82,7 +82,7 @@ class DebateWorkerState(TypedDict):
     literature_context :str
     max_rounds :int
     target_words :int
-    debate_results :Annotated[List[DebateTurn],operator.add]
+    debate_results: Annotated[List[DebateResult], operator.add]
 
 
 ###### Stage 4 - Output
@@ -99,7 +99,8 @@ class WriterOutput(BaseModel):
     sources_used :int
 
 class WriterState(TypedDict):
-    writer_input :WriterInput
+    writer_input: WriterInput
+    thread_id: str
     # stage 1
     fetched_sources :Annotated[List[FetchedSource],operator.add]
     #stage 2
@@ -107,5 +108,6 @@ class WriterState(TypedDict):
     #stage 3
     debate_results : Annotated[List[DebateResult],operator.add]
     #stage 4
-    writer_output : WriterOutput
+    writer_output: WriterOutput
+    revision_cycle: int
 
