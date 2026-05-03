@@ -26,7 +26,7 @@ def _load_urls_from_file(path: str)-> List[SourceItem]:
         sys.exit(1)
 
     sources :List[SourceItem] =[]
-    with file_path.ope(encoding="utf-8") as fh:
+    with file_path.open(encoding="utf-8") as fh:
         for line in fh:
             url = line.strip()
             if not url or url.startswith("#"):
@@ -48,13 +48,13 @@ def _generate_sources_from_topic(topic :str , n:int =20) -> List[SourceItem]:
     log.info(f"No Url file provided -- Generating {n} sources via Tavily for : {topic}")
     try:
         from langchain_community.tools.tavily_search import TavilySearchResults
-        tool = TavilySearchResults(max_result=n, search_depth = "advanced")
+        tool = TavilySearchResults(max_results=n, search_depth="advanced")
         results=tool.invoke(topic)
         sources = [
             SourceItem(
                 title= r.get("title","Unititled"),
                 url=r.get("url",""),
-                snipper=r.get("content","")[:500],
+                snippet=r.get("content","")[:500],
                 domain = "tavily_search",
             )
             for r in results 
@@ -71,7 +71,7 @@ def _generate_sources_from_topic(topic :str , n:int =20) -> List[SourceItem]:
 ################ Argument parser
 
 def _parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParse(
+    p = argparse.ArgumentParser(
         prog = "Research Writer ",
         description =(
             "Standalone Mirofish debate writer.\n"
