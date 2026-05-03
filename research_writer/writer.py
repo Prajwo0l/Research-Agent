@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import hashlib
 import time
-from typing import Optional 
+from pathlib import Path
+from typing import Optional
 from dotenv import load_dotenv
 from langgraph.types import Command
+
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 from .graph import build_writer_graph
 from .logger import get_logger,step,success,warn
 from .schemas import WriterInput, WriterOutput, WriterState
-
-load_dotenv()
 
 log=get_logger(__name__)
 
@@ -24,7 +25,7 @@ _BANNER = """
 def _make_thread_id(writer_input : WriterInput) -> str:
     url_sample = "|".join(s.url for s in writer_input.sources[:5])
     fingerprint = f"{writer_input.topic}|{url_sample}"
-    return "writer-" + hashlib.sha1(fingerprint.encode()).hexfigest()[:16]
+    return "writer-" + hashlib.sha1(fingerprint.encode()).hexdigest()[:16]
 
 
 def run_writer(
