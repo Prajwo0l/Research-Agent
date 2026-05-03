@@ -46,7 +46,7 @@ def _extract_text_from_html(html:str)->str:
     html = re.sub(r"<(script|style)[^>]*>.*?</(script|style)>", " ", html,
             flags=re.DOTALL | re.IGNORECASE)
     text = re.sub(r"<[^>]+>", " ", html)
-    text = re.sub(r"\s+"," ",text).trip()
+    text = re.sub(r"\s+"," ",text).strip()
     return text[:_FETCH_MAX_CHARS]
 
 def _safe_fetch(url:str)-> tuple[str,str]:
@@ -356,7 +356,7 @@ def document_assembler(state : WriterState)-> dict:
 
     intro_text = conclusion_text="" 
     if intro_conclusion_text:
-        if '## Conckusion' in intro_conclusion_text:
+        if '## Conclusion' in intro_conclusion_text:
             split=intro_conclusion_text.split("## Conclusion",1)
             intro_text = split[0].replace('## Introduction', "").strip()
             conclusion_text=split[1].strip()
